@@ -1,5 +1,5 @@
 {
-  "name": "web-socket-chat",
+  "name": "social-network-graphql",
   "version": "0.0.1",
   "description": "",
   "author": "",
@@ -23,10 +23,15 @@
     "@apollo/server": "^4.12.2",
     "@nestjs/apollo": "^13.1.0",
     "@nestjs/common": "^11.0.1",
+    "@nestjs/config": "^4.0.2",
     "@nestjs/core": "^11.0.1",
     "@nestjs/graphql": "^13.1.0",
+    "@nestjs/mongoose": "^11.0.3",
     "@nestjs/platform-express": "^11.0.1",
+    "class-transformer": "^0.5.1",
+    "class-validator": "^0.14.2",
     "graphql": "^16.11.0",
+    "mongoose": "^8.16.4",
     "reflect-metadata": "^0.2.2",
     "rxjs": "^7.8.1"
   },
