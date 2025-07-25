@@ -1,8 +1,9 @@
-import { CreateLikeInput } from './create-like.input';
-import { InputType, Field, Int, PartialType } from '@nestjs/graphql';
+import { InputType, Field, ID } from '@nestjs/graphql';
+import { IsMongoId } from 'class-validator';
 
 @InputType()
-export class UpdateLikeInput extends PartialType(CreateLikeInput) {
-  @Field(() => Int)
-  id: number;
+export class RemoveLikeInput {
+  @Field(() => ID)
+  @IsMongoId()
+  postId: string;
 }

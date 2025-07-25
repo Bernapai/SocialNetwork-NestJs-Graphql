@@ -1,8 +1,16 @@
-import { CreatePostInput } from './create-post.input';
-import { InputType, Field, Int, PartialType } from '@nestjs/graphql';
+import { InputType, Field } from '@nestjs/graphql';
+import { IsString, IsArray, IsOptional, MaxLength } from 'class-validator';
 
 @InputType()
-export class UpdatePostInput extends PartialType(CreatePostInput) {
-  @Field(() => Int)
-  id: number;
+export class UpdatePostInput {
+  @Field({ nullable: true })
+  @IsOptional()
+  @IsString()
+  @MaxLength(5000)
+  content?: string;
+
+  @Field(() => [String], { nullable: true })
+  @IsOptional()
+  @IsArray()
+  images?: string[];
 }

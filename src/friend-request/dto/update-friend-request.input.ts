@@ -1,8 +1,10 @@
-import { CreateFriendRequestInput } from './create-friend-request.input';
-import { InputType, Field, Int, PartialType } from '@nestjs/graphql';
+import { InputType, Field } from '@nestjs/graphql';
+import { IsEnum } from 'class-validator';
+import { FriendRequestStatus } from '../entities/friend-request.entity';
 
 @InputType()
-export class UpdateFriendRequestInput extends PartialType(CreateFriendRequestInput) {
-  @Field(() => Int)
-  id: number;
+export class UpdateFriendRequestInput {
+  @Field(() => FriendRequestStatus)
+  @IsEnum(FriendRequestStatus)
+  status: FriendRequestStatus;
 }

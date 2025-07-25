@@ -8,7 +8,11 @@ import { LikesModule } from './likes/likes.module';
 import { FriendRequestModule } from './friend-request/friend-request.module';
 import { AuthModule } from './auth/auth.module';
 import { DatabaseModule } from './database/database.module';
-
+import { MongooseModule } from '@nestjs/mongoose';
+import { User, UserSchema } from './users/entities/user.entity';
+import { Post, PostSchema } from './posts/entities/post.entity';
+import { Like, LikeSchema } from './likes/entities/like.entity';
+import { FriendRequest, FriendRequestSchema } from './friend-request/entities/friend-request.entity';
 
 @Module({
   imports: [
@@ -20,10 +24,19 @@ import { DatabaseModule } from './database/database.module';
       introspection: true,
       sortSchema: true,
     }),
+
+    MongooseModule.forFeature([
+      { name: User.name, schema: UserSchema },
+      { name: Post.name, schema: PostSchema },
+      { name: Like.name, schema: LikeSchema },
+      { name: FriendRequest.name, schema: FriendRequestSchema },
+    ]),
+
     ConfigModule.forRoot({
       isGlobal: true,
       envFilePath: '.env',
     }),
+
     UsersModule,
     PostsModule,
     LikesModule,

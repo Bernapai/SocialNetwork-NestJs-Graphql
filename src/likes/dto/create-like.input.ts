@@ -1,7 +1,9 @@
-import { InputType, Int, Field } from '@nestjs/graphql';
+import { InputType, Field, ID } from '@nestjs/graphql';
+import { IsMongoId } from 'class-validator';
 
 @InputType()
 export class CreateLikeInput {
-  @Field(() => Int, { description: 'Example field (placeholder)' })
-  exampleField: number;
+  @Field(() => ID)
+  @IsMongoId()
+  postId: string;
 }
