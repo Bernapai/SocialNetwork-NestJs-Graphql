@@ -4,7 +4,6 @@ import { UpdateUserInput } from '../dto/update-user.input';
 import { User, UserDocument } from '../entities/user.entity';
 import { InjectModel } from '@nestjs/mongoose';
 import { Model, Types } from 'mongoose';
-import * as bcrypt from 'bcrypt';
 import { NotFoundException, ConflictException } from '@nestjs/common';
 
 @Injectable()
