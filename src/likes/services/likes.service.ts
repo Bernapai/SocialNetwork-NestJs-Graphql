@@ -1,26 +1,40 @@
 import { Injectable } from '@nestjs/common';
 import { CreateLikeInput } from '../dto/create-like.input';
-import { UpdateLikeInput } from '../dto/update-like.input';
+import { Like, LikeDocument } from '../entities/like.entity';
+import { InjectModel } from '@nestjs/mongoose';
+import { Model } from 'mongoose';
+import { NotFoundException } from '@nestjs/common';
 
 @Injectable()
 export class LikesService {
-  create(createLikeInput: CreateLikeInput) {
-    return 'This action adds a new like';
+  constructor(
+    @InjectModel(Like.name)
+    private likeModel: Model<LikeDocument>,
+  ) { }
+
+  async create(createLikeInput: CreateLikeInput): Promise<Like> {
+    const createdLike = new this.likeModel(createLikeInput);
+    return createdLike.save();
   }
 
-  findAll() {
-    return `This action returns all likes`;
+  async findAll(): Promise<Like[]> {
+    return this.likeModel.find().exec();
   }
 
-  findOne(id: number) {
-    return `This action returns a #${id} like`;
+  async findOne(id: string): Promise<Like> {
+    const like = await this.likeModel.findById(id).exec();
+    if (!like) {
+      throw new NotFoundException('Like not found');
+    }
+    return like;
   }
 
-  update(id: number, updateLikeInput: UpdateLikeInput) {
-    return `This action updates a #${id} like`;
+  async remove(id: string): Promise<Like> {
+    const deletedLike = await this.likeModel.findByIdAndDelete(id).exec();
+    if (!deletedLike) {
+      throw new NotFoundException('Like not found');
+    }
+    return deletedLike;
   }
 
-  remove(id: number) {
-    return `This action removes a #${id} like`;
-  }
 }

@@ -14,6 +14,7 @@ export class PostsResolver {
   constructor(private readonly postsService: PostsService) { }
 
   // CRUD básico
+  @UseGuards(JwtAuthGuard)
   @Mutation(() => Post)
   createPost(@Args('createPostInput') createPostInput: CreatePostInput): Promise<Post> {
     return this.postsService.create(createPostInput);
