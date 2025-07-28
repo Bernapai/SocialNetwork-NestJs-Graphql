@@ -6,6 +6,7 @@ import { InjectModel } from '@nestjs/mongoose';
 import { Model, Types } from 'mongoose';
 import { NotFoundException, ConflictException } from '@nestjs/common';
 
+
 @Injectable()
 export class UserService {
   constructor(

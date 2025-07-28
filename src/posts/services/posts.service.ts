@@ -1,26 +1,52 @@
 import { Injectable } from '@nestjs/common';
 import { CreatePostInput } from '../dto/create-post.input';
 import { UpdatePostInput } from '../dto/update-post.input';
+import { Post, PostDocument } from '../entities/post.entity';
+import { InjectModel } from '@nestjs/mongoose';
+import { Model } from 'mongoose';
+import { NotFoundException } from '@nestjs/common';
 
 @Injectable()
 export class PostsService {
-  create(createPostInput: CreatePostInput) {
-    return 'This action adds a new post';
+  constructor(
+    @InjectModel(Post.name)
+    private postModel: Model<PostDocument>,
+  ) { }
+
+  async create(createPostInput: CreatePostInput): Promise<Post> {
+    const createdPost = new this.postModel(createPostInput);
+    return createdPost.save();
   }
 
-  findAll() {
-    return `This action returns all posts`;
+  async findAll(): Promise<Post[]> {
+    return this.postModel.find().exec();
   }
 
-  findOne(id: number) {
-    return `This action returns a #${id} post`;
+  async findOne(id: string): Promise<Post> {
+    const post = await this.postModel.findById(id).exec();
+    if (!post) {
+      throw new NotFoundException('Post not found');
+    }
+    return post;
   }
 
-  update(id: number, updatePostInput: UpdatePostInput) {
-    return `This action updates a #${id} post`;
+  async update(id: string, updatePostInput: UpdatePostInput): Promise<Post> {
+    const updatedPost = await this.postModel
+      .findByIdAndUpdate(id, updatePostInput, { new: true })
+      .exec();
+
+    if (!updatedPost) {
+      throw new NotFoundException('Post not found');
+    }
+    return updatedPost;
   }
 
-  remove(id: number) {
-    return `This action removes a #${id} post`;
+  async remove(id: string): Promise<Post> {
+    const deletedPost = await this.postModel.findByIdAndDelete(id).exec();
+    if (!deletedPost) {
+      throw new NotFoundException('Post not found');
+    }
+    return deletedPost;
   }
+
 }
