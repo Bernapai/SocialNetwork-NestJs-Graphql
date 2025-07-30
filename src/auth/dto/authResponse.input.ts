@@ -1,12 +1,12 @@
 // dto/auth.response.ts
 import { ObjectType, Field } from '@nestjs/graphql';
-import { RegisterInput } from './register.input';
+import { User } from 'src/users/entities/user.entity';
 
 @ObjectType()
 export class AuthResponse {
     @Field()
     access_token: string;
 
-    @Field(() => RegisterInput)
-    usuario: RegisterInput;
+    @Field(() => User)
+    usuario: User;
 }
