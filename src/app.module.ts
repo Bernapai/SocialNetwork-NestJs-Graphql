@@ -13,6 +13,7 @@ import { User, UserSchema } from './users/entities/user.entity';
 import { Post, PostSchema } from './posts/entities/post.entity';
 import { Like, LikeSchema } from './likes/entities/like.entity';
 import { FriendRequest, FriendRequestSchema } from './friend-request/entities/friend-request.entity';
+import { ThrottlerModule } from '@nestjs/throttler';
 
 @Module({
   imports: [
@@ -31,6 +32,15 @@ import { FriendRequest, FriendRequestSchema } from './friend-request/entities/fr
       { name: Like.name, schema: LikeSchema },
       { name: FriendRequest.name, schema: FriendRequestSchema },
     ]),
+
+    ThrottlerModule.forRoot({
+      throttlers: [
+        {
+          ttl: 60000,
+          limit: 10,
+        },
+      ],
+    }),
 
     ConfigModule.forRoot({
       isGlobal: true,
