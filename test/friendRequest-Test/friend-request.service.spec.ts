@@ -12,18 +12,21 @@ describe('FriendRequestService', () => {
   let service: FriendRequestService;
   let model: Model<FriendRequestDocument>;
 
+  const mockFriendRequestId = new Types.ObjectId();
+  const mockSenderId = new Types.ObjectId();
+  const mockReceiverId = new Types.ObjectId();
+
   const mockFriendRequest = {
-    _id: new Types.ObjectId(),
-    senderId: new Types.ObjectId(),
-    receiverId: new Types.ObjectId(),
+    _id: mockFriendRequestId,
+    senderId: mockSenderId,
+    receiverId: mockReceiverId,
     status: FriendRequestStatus.PENDING,
     createdAt: new Date(),
     updatedAt: new Date(),
+    save: jest.fn(),
   };
 
   const mockFriendRequestModel = {
-    new: jest.fn().mockResolvedValue(mockFriendRequest),
-    constructor: jest.fn().mockResolvedValue(mockFriendRequest),
     find: jest.fn(),
     findById: jest.fn(),
     findByIdAndUpdate: jest.fn(),
@@ -55,31 +58,35 @@ describe('FriendRequestService', () => {
   });
 
   describe('create', () => {
-    it('should create a friend request', async () => {
-      const createFriendRequestInput: CreateFriendRequestInput = {
-        receiverId: mockFriendRequest.receiverId.toString(),
+    it('should create a friend request successfully', async () => {
+      const createDto: CreateFriendRequestInput = {
+        receiverId: mockReceiverId.toString(),
       };
 
+      // Mock the save method
       const saveSpy = jest.fn().mockResolvedValue(mockFriendRequest);
-      jest.spyOn(model, 'constructor' as any).mockImplementation(() => ({
+
+      // Mock the model constructor
+      const mockConstructor = jest.fn().mockImplementation(() => ({
+        ...mockFriendRequest,
         save: saveSpy,
       }));
 
-      // Mock the model constructor to return an object with save method
-      (model as any).mockImplementation(() => ({
-        save: saveSpy,
-      }));
+      // Replace the model with our mock constructor
+      (service as any).friendRequestModel = mockConstructor;
 
-      const result = await service.create(createFriendRequestInput);
+      const result = await service.create(createDto);
 
       expect(result).toEqual(mockFriendRequest);
+      expect(mockConstructor).toHaveBeenCalledWith(createDto);
       expect(saveSpy).toHaveBeenCalled();
     });
   });
 
   describe('findAll', () => {
-    it('should return all friend requests', async () => {
+    it('should return an array of friend requests', async () => {
       const friendRequests = [mockFriendRequest];
+
       mockFriendRequestModel.find.mockReturnValue({
         exec: jest.fn().mockResolvedValue(friendRequests),
       });
@@ -93,53 +100,53 @@ describe('FriendRequestService', () => {
 
   describe('findOne', () => {
     it('should return a friend request by id', async () => {
-      const id = mockFriendRequest._id.toString();
       mockFriendRequestModel.findById.mockReturnValue({
         exec: jest.fn().mockResolvedValue(mockFriendRequest),
       });
 
-      const result = await service.findOne(id);
+      const result = await service.findOne(mockFriendRequestId.toString());
 
       expect(result).toEqual(mockFriendRequest);
-      expect(mockFriendRequestModel.findById).toHaveBeenCalledWith(id);
+      expect(mockFriendRequestModel.findById).toHaveBeenCalledWith(mockFriendRequestId.toString());
     });
 
-    it('should throw NotFoundException if friend request not found', async () => {
-      const id = 'non-existent-id';
+    it('should throw NotFoundException when friend request not found', async () => {
       mockFriendRequestModel.findById.mockReturnValue({
         exec: jest.fn().mockResolvedValue(null),
       });
 
-      await expect(service.findOne(id)).rejects.toThrow(NotFoundException);
-      expect(mockFriendRequestModel.findById).toHaveBeenCalledWith(id);
+      await expect(service.findOne('nonexistent-id')).rejects.toThrow(NotFoundException);
+      await expect(service.findOne('nonexistent-id')).rejects.toThrow('Friend Request not found');
     });
   });
 
   describe('update', () => {
-    it('should update a friend request', async () => {
-      const id = mockFriendRequest._id.toString();
-      const updateInput: UpdateFriendRequestInput = {
+    it('should update a friend request successfully', async () => {
+      const updateDto: UpdateFriendRequestInput = {
         status: FriendRequestStatus.ACCEPTED,
       };
-      const updatedFriendRequest = { ...mockFriendRequest, ...updateInput };
+
+      const updatedFriendRequest = {
+        ...mockFriendRequest,
+        status: FriendRequestStatus.ACCEPTED,
+      };
 
       mockFriendRequestModel.findByIdAndUpdate.mockReturnValue({
         exec: jest.fn().mockResolvedValue(updatedFriendRequest),
       });
 
-      const result = await service.update(id, updateInput);
+      const result = await service.update(mockFriendRequestId.toString(), updateDto);
 
       expect(result).toEqual(updatedFriendRequest);
       expect(mockFriendRequestModel.findByIdAndUpdate).toHaveBeenCalledWith(
-        id,
-        updateInput,
+        mockFriendRequestId.toString(),
+        updateDto,
         { new: true }
       );
     });
 
-    it('should throw NotFoundException if friend request not found', async () => {
-      const id = 'non-existent-id';
-      const updateInput: UpdateFriendRequestInput = {
+    it('should throw NotFoundException when trying to update non-existent friend request', async () => {
+      const updateDto: UpdateFriendRequestInput = {
         status: FriendRequestStatus.ACCEPTED,
       };
 
@@ -147,36 +154,30 @@ describe('FriendRequestService', () => {
         exec: jest.fn().mockResolvedValue(null),
       });
 
-      await expect(service.update(id, updateInput)).rejects.toThrow(NotFoundException);
-      expect(mockFriendRequestModel.findByIdAndUpdate).toHaveBeenCalledWith(
-        id,
-        updateInput,
-        { new: true }
-      );
+      await expect(service.update('nonexistent-id', updateDto)).rejects.toThrow(NotFoundException);
+      await expect(service.update('nonexistent-id', updateDto)).rejects.toThrow('Friend Request not found');
     });
   });
 
   describe('remove', () => {
-    it('should remove a friend request', async () => {
-      const id = mockFriendRequest._id.toString();
+    it('should remove a friend request successfully', async () => {
       mockFriendRequestModel.findByIdAndDelete.mockReturnValue({
         exec: jest.fn().mockResolvedValue(mockFriendRequest),
       });
 
-      const result = await service.remove(id);
+      const result = await service.remove(mockFriendRequestId.toString());
 
       expect(result).toEqual(mockFriendRequest);
-      expect(mockFriendRequestModel.findByIdAndDelete).toHaveBeenCalledWith(id);
+      expect(mockFriendRequestModel.findByIdAndDelete).toHaveBeenCalledWith(mockFriendRequestId.toString());
     });
 
-    it('should throw NotFoundException if friend request not found', async () => {
-      const id = 'non-existent-id';
+    it('should throw NotFoundException when trying to remove non-existent friend request', async () => {
       mockFriendRequestModel.findByIdAndDelete.mockReturnValue({
         exec: jest.fn().mockResolvedValue(null),
       });
 
-      await expect(service.remove(id)).rejects.toThrow(NotFoundException);
-      expect(mockFriendRequestModel.findByIdAndDelete).toHaveBeenCalledWith(id);
+      await expect(service.remove('nonexistent-id')).rejects.toThrow(NotFoundException);
+      await expect(service.remove('nonexistent-id')).rejects.toThrow('Friend Request not found');
     });
   });
 });

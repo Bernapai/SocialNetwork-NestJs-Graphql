@@ -1,5 +1,6 @@
 import { Test, TestingModule } from '@nestjs/testing';
 import { ForbiddenException } from '@nestjs/common';
+import { JwtService } from '@nestjs/jwt';
 import { Types } from 'mongoose';
 import { FriendRequestResolver } from 'src/friend-request/resolvers/friend-request.resolver';
 import { FriendRequestService } from 'src/friend-request/services/friend-request.service';
@@ -7,6 +8,7 @@ import { FriendRequest, FriendRequestStatus } from 'src/friend-request/entities/
 import { CreateFriendRequestInput } from 'src/friend-request/dto/create-friend-request.input';
 import { UpdateFriendRequestInput } from 'src/friend-request/dto/update-friend-request.input';
 import { User } from 'src/users/entities/user.entity';
+import { JwtAuthGuard } from 'src/auth/guards/jwt-auth.guard';
 
 describe('FriendRequestResolver', () => {
   let resolver: FriendRequestResolver;
@@ -23,8 +25,8 @@ describe('FriendRequestResolver', () => {
     password: 'hashedpassword',
     firstName: 'User',
     lastName: 'One',
-    avatar: '',
-    bio: '',
+    avatar: 'null',
+    bio: 'null',
     createdAt: new Date(),
     updatedAt: new Date(),
   };
@@ -36,8 +38,8 @@ describe('FriendRequestResolver', () => {
     password: 'hashedpassword',
     firstName: 'User',
     lastName: 'Two',
-    avatar: '',
-    bio: '',
+    avatar: 'null',
+    bio: 'null',
     createdAt: new Date(),
     updatedAt: new Date(),
   };
@@ -61,6 +63,15 @@ describe('FriendRequestResolver', () => {
     remove: jest.fn(),
   };
 
+  const mockJwtService = {
+    sign: jest.fn(),
+    verify: jest.fn(),
+  };
+
+  const mockJwtAuthGuard = {
+    canActivate: jest.fn(() => true),
+  };
+
   beforeEach(async () => {
     const module: TestingModule = await Test.createTestingModule({
       providers: [
@@ -68,6 +79,14 @@ describe('FriendRequestResolver', () => {
         {
           provide: FriendRequestService,
           useValue: mockFriendRequestService,
+        },
+        {
+          provide: JwtService,
+          useValue: mockJwtService,
+        },
+        {
+          provide: JwtAuthGuard,
+          useValue: mockJwtAuthGuard,
         },
       ],
     }).compile();

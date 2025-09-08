@@ -14,6 +14,8 @@ import { Post, PostSchema } from './posts/entities/post.entity';
 import { Like, LikeSchema } from './likes/entities/like.entity';
 import { FriendRequest, FriendRequestSchema } from './friend-request/entities/friend-request.entity';
 import { ThrottlerModule } from '@nestjs/throttler';
+import { CustomRedisModule } from './redis/redis.module';
+
 
 @Module({
   imports: [
@@ -24,6 +26,7 @@ import { ThrottlerModule } from '@nestjs/throttler';
       debug: true,
       introspection: true,
       sortSchema: true,
+
     }),
 
     MongooseModule.forFeature([
@@ -52,7 +55,9 @@ import { ThrottlerModule } from '@nestjs/throttler';
     LikesModule,
     FriendRequestModule,
     AuthModule,
-    DatabaseModule],
+    DatabaseModule,
+    CustomRedisModule
+  ],
   controllers: [],
   providers: [],
 })
