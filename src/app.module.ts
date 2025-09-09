@@ -14,7 +14,7 @@ import { Post, PostSchema } from './posts/entities/post.entity';
 import { Like, LikeSchema } from './likes/entities/like.entity';
 import { FriendRequest, FriendRequestSchema } from './friend-request/entities/friend-request.entity';
 import { ThrottlerModule } from '@nestjs/throttler';
-import { CustomRedisModule } from './redis/redis.module';
+import { RedisModule } from './redis/redis.module';
 
 
 @Module({
@@ -56,7 +56,7 @@ import { CustomRedisModule } from './redis/redis.module';
     FriendRequestModule,
     AuthModule,
     DatabaseModule,
-    CustomRedisModule
+    RedisModule
   ],
   controllers: [],
   providers: [],
